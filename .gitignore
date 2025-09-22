@@ -1,0 +1,11 @@
+**/Builds
+**/JuceLibraryCode
+**/.DS_Store
+*.filtergraph
+*.vscode
+*.DS_Store
+builds
+
+/*.vscode
+/*.DS_Store
+/builds
