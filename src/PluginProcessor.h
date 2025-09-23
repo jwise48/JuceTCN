@@ -1,32 +1,37 @@
 /*
   ==============================================================================
 
-    This file contains the basic framework code for a JUCE plugin processor.
+    This file was auto-generated!
+
+    It contains the basic framework code for a JUCE plugin processor.
 
   ==============================================================================
 */
 
 #pragma once
 
-#include <juce_gui_basics/juce_gui_basics.h>
+#include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_audio_utils/juce_audio_utils.h>
+#include <juce_core/juce_core.h>
+#include <torch/script.h>
+#include <torch/torch.h>
 
 //==============================================================================
 /**
 */
-class NewProjectAudioProcessor  : public juce::AudioProcessor
+class JuceTCNAudioProcessor  : public juce::AudioProcessor
 {
 public:
     //==============================================================================
-    NewProjectAudioProcessor();
-    ~NewProjectAudioProcessor() override;
+    JuceTCNAudioProcessor();
+    ~JuceTCNAudioProcessor();
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
 
    #ifndef JucePlugin_PreferredChannelConfigurations
-    bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
+    bool isBusesLayoutSupported (const juce::BusesLayout& layouts) const override;
    #endif
 
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
@@ -54,7 +59,46 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    //==============================================================================
+    void calculateReceptiveField();
+    void setupBuffers();
+
+    //==============================================================================
+    juce::AudioParameterInt* layers;
+
+    //==============================================================================
+    void buildModel();
+
+    int seed = 42;
+    int receptiveFieldSamples = 0; // in samples
+    int blockSamples = 0; // in/out samples
+    double sampleRate = 0; // in Hz
+
+    // holder for the linear gain values
+    // (don't want to convert dB -> linear on audio thread)
+    float inputGainLn, outputGainLn;
+
 private:
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NewProjectAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (JuceTCNAudioProcessor)
+
+    //==============================================================================
+    juce::AudioProcessorValueTreeState parameters;
+
+    // is this not dangerous to use floats for values that are actually ints?
+    std::atomic<float>* inputGainParameter     = nullptr;
+    std::atomic<float>* outputGainParameter    = nullptr;
+    std::atomic<float>* limitParameter         = nullptr;
+    std::atomic<float>* peakReductionParameter = nullptr;
+
+    juce::AudioBuffer<float> membuf, procbuf; // circular buffer to store input data
+    int mbr, mbw; // read and write pointers
+
+    int nInputs;
+    int membuflength; // number of samples in the memory (past samples) buffer (rf - 1)
+    int procbuflength; // number of samples in the process buffer (rf + block - 1)
+
+    std::vector<juce::IIRFilter> highPassFilters; // high pass filters for the left and right channels
+
+    torch::jit::script::Module model;
 };
