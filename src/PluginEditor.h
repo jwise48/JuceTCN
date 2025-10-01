@@ -29,7 +29,7 @@ public:
     };
 
     JuceTCNAudioProcessorEditor (JuceTCNAudioProcessor&, juce::AudioProcessorValueTreeState&);
-    ~JuceTCNAudioProcessorEditor();
+    ~JuceTCNAudioProcessorEditor() override;
 
     typedef juce::AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
     typedef juce::AudioProcessorValueTreeState::ButtonAttachment ButtonAttachment;
@@ -45,7 +45,7 @@ public:
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
-    JuceTCNAudioProcessor& processor;
+    JuceTCNAudioProcessor& audioProcessor;
     juce::AudioProcessorValueTreeState& valueTreeState;
 
     // Main panel controls

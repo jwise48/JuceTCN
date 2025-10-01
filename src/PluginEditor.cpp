@@ -13,7 +13,7 @@
 
 //==============================================================================
 JuceTCNAudioProcessorEditor::JuceTCNAudioProcessorEditor (JuceTCNAudioProcessor& p, juce::AudioProcessorValueTreeState& vts)
-    : juce::AudioProcessorEditor (&p), processor (p), valueTreeState (vts)
+    : juce::AudioProcessorEditor (&p), audioProcessor (p), valueTreeState (vts)
 {
 
     getLookAndFeel().setColour (juce::Slider::thumbColourId, juce::Colours::grey);
@@ -50,7 +50,7 @@ JuceTCNAudioProcessorEditor::JuceTCNAudioProcessorEditor (JuceTCNAudioProcessor&
     inputGainSlider.setSliderStyle (juce::Slider::Rotary);
     inputGainSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 50, 24);//(Slider::NoTextBox, false, 0, 0);
     inputGainSlider.onValueChange = [this] {updateGains(true);};
-    inputGainSlider.setValue (juce::Decibels::gainToDecibels(processor.inputGainLn));
+    inputGainSlider.setValue (juce::Decibels::gainToDecibels(audioProcessor.inputGainLn));
     inputGainSlider.setColour (juce::Slider::textBoxBackgroundColourId, fillColour);
     inputGainSlider.setColour (juce::Slider::textBoxOutlineColourId, fillColour);
     inputGainLabel.setText ("Input", juce::dontSendNotification);
@@ -60,7 +60,7 @@ JuceTCNAudioProcessorEditor::JuceTCNAudioProcessorEditor (JuceTCNAudioProcessor&
     outputGainSlider.setSliderStyle (juce::Slider::Rotary);
     outputGainSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 50, 24);//(Slider::NoTextBox, false, 0, 0);
     outputGainSlider.onValueChange = [this] {updateGains(false);};
-    outputGainSlider.setValue (juce::Decibels::gainToDecibels(processor.outputGainLn));
+    outputGainSlider.setValue (juce::Decibels::gainToDecibels(audioProcessor.outputGainLn));
     outputGainSlider.setColour (juce::Slider::textBoxBackgroundColourId, fillColour);
     outputGainSlider.setColour (juce::Slider::textBoxOutlineColourId, fillColour);
     outputGainLabel.setText ("Makeup", juce::dontSendNotification);
@@ -168,21 +168,21 @@ JuceTCNAudioProcessorEditor::~JuceTCNAudioProcessorEditor()
 void JuceTCNAudioProcessorEditor::updateGains(bool inputGain)
 {
   if (inputGain == true){
-    processor.inputGainLn = juce::Decibels::decibelsToGain((float) inputGainSlider.getValue());
-    inputGainSlider.setValue (juce::Decibels::gainToDecibels(processor.inputGainLn));
+    audioProcessor.inputGainLn = juce::Decibels::decibelsToGain(static_cast<float>(inputGainSlider.getValue()));
+    inputGainSlider.setValue (juce::Decibels::gainToDecibels(audioProcessor.inputGainLn));
     if (linkGainButton.getToggleState()) {
-      float outputGaindB = -1 * inputGainSlider.getValue();
-      processor.outputGainLn = juce::Decibels::decibelsToGain((float) outputGaindB);
-      outputGainSlider.setValue (juce::Decibels::gainToDecibels(processor.outputGainLn));
+      float outputGaindB = -1.0f * static_cast<float>(inputGainSlider.getValue());
+      audioProcessor.outputGainLn = juce::Decibels::decibelsToGain(outputGaindB);
+      outputGainSlider.setValue (juce::Decibels::gainToDecibels(audioProcessor.outputGainLn));
     }
   }
   else {
-    processor.outputGainLn = juce::Decibels::decibelsToGain((float) outputGainSlider.getValue());
-    outputGainSlider.setValue (juce::Decibels::gainToDecibels(processor.outputGainLn));
+    audioProcessor.outputGainLn = juce::Decibels::decibelsToGain(static_cast<float>(outputGainSlider.getValue()));
+    outputGainSlider.setValue (juce::Decibels::gainToDecibels(audioProcessor.outputGainLn));
     if (linkGainButton.getToggleState()) {
-      float inputGaindB = -1 * outputGainSlider.getValue();
-      processor.inputGainLn = juce::Decibels::decibelsToGain((float) inputGaindB);
-      inputGainSlider.setValue (juce::Decibels::gainToDecibels(processor.inputGainLn));
+      float inputGaindB = -1.0f * static_cast<float>(outputGainSlider.getValue());
+      audioProcessor.inputGainLn = juce::Decibels::decibelsToGain(inputGaindB);
+      inputGainSlider.setValue (juce::Decibels::gainToDecibels(audioProcessor.inputGainLn));
     }
   }
 }
@@ -190,10 +190,10 @@ void JuceTCNAudioProcessorEditor::updateGains(bool inputGain)
 //==============================================================================
 void JuceTCNAudioProcessorEditor::updateModelState()
 {
-  processor.calculateReceptiveField();
-  float rfms = (processor.receptiveFieldSamples / processor.sampleRate) * 1000;
+  audioProcessor.calculateReceptiveField();
+  float rfms = static_cast<float>(audioProcessor.receptiveFieldSamples) / static_cast<float>(audioProcessor.sampleRate) * 1000.0f;
   receptiveFieldTextEditor.setText(juce::String(rfms, 1));
-  //int parameters = processor.model->getNumParameters();
+  //int parameters = audioProcessor.model->getNumParameters();
   //parametersTextEditor.setText(String(parameters));
 }
 

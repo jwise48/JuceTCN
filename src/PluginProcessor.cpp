@@ -140,7 +140,7 @@ void JuceTCNAudioProcessor::releaseResources()
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool JuceTCNAudioProcessor::isBusesLayoutSupported (const juce::BusesLayout& layouts) const
+bool JuceTCNAudioProcessor::isBusesLayoutSupported (const juce::AudioProcessor::BusesLayout& layouts) const
 {
   #if JucePlugin_IsMidiEffect
     juce::ignoreUnused (layouts);
@@ -259,12 +259,12 @@ void JuceTCNAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
     auto state = parameters.copyState();
     std::unique_ptr<juce::XmlElement> xml (state.createXml());
-    juce::copyXmlToBinary (*xml, destData);
+    juce::AudioProcessor::copyXmlToBinary (*xml, destData);
 }
 
 void JuceTCNAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    std::unique_ptr<juce::XmlElement> xmlState (juce::getXmlFromBinary (data, sizeInBytes));
+    std::unique_ptr<juce::XmlElement> xmlState (juce::AudioProcessor::getXmlFromBinary (data, sizeInBytes));
 
     if (xmlState.get() != nullptr)
         if (xmlState->hasTagName (parameters.state.getType()))

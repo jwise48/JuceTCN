@@ -24,14 +24,14 @@ class JuceTCNAudioProcessor  : public juce::AudioProcessor
 public:
     //==============================================================================
     JuceTCNAudioProcessor();
-    ~JuceTCNAudioProcessor();
+    ~JuceTCNAudioProcessor() override;
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
 
    #ifndef JucePlugin_PreferredChannelConfigurations
-    bool isBusesLayoutSupported (const juce::BusesLayout& layouts) const override;
+    bool isBusesLayoutSupported (const juce::AudioProcessor::BusesLayout& layouts) const override;
    #endif
 
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
