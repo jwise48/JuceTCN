@@ -16,13 +16,18 @@ if os.path.exists('micro-tcn'):
 
 # Install dependencies - updated for modern compatibility
 !pip install torch torchvision torchaudio
-!pip install pytorch-lightning
+!pip install pytorch-lightning==1.9.5
 !pip install auraloss
 !pip install torchsummary
 !pip install thop
 !pip install pyloudnorm
 !pip install soundfile
 !pip install -e .
+
+# PyTorch Lightning version compatibility note:
+# micro-tcn was built for PyTorch Lightning v1.x which uses validation_epoch_end()
+# v2.0+ has breaking changes (validation_epoch_end -> on_validation_epoch_end)
+# We pin to v1.9.5 for compatibility with micro-tcn's Base class implementation
 
 # Add micro-tcn to Python path for imports
 sys.path.append('/content/micro-tcn')
@@ -64,135 +69,292 @@ else:
 print(f"Using device: {device}")
 ```
 
-## Dataset Setup
+## Dataset Setup with Google Drive Persistence
 
 ```python
-# SignalTrain LA2A dataset setup
-# Note: This is a large dataset (~20GB). Make sure you have sufficient storage.
+# SignalTrain LA2A dataset setup with Google Drive persistence
+# This avoids re-downloading the ~21GB dataset in future Colab sessions
 
 import urllib.request
-import zipfile
+import tarfile
 import requests
+import os
+import shutil
 from pathlib import Path
+from google.colab import drive
 
-def download_signaltrain_dataset():
-    """Download and extract SignalTrain LA2A dataset with multiple fallback methods"""
-    
-    # Multiple potential URLs for the dataset
-    dataset_urls = [
-        "https://zenodo.org/records/3824876/files/SignalTrain_LA2A_Dataset_1.1.zip",
-        "https://zenodo.org/record/3824876/files/SignalTrain_LA2A_Dataset_1.1.zip",
-        "https://files.pythonhosted.org/packages/source/s/signaltrain/SignalTrain_LA2A_Dataset_1.1.zip"
-    ]
-    
-    dataset_path = "SignalTrain_LA2A_Dataset_1.1.zip"
-    extract_path = "SignalTrain_LA2A_Dataset_1.1"
-    
-    if os.path.exists(extract_path):
-        print("Dataset already exists.")
-        return extract_path
-    
-    if not os.path.exists(dataset_path):
-        print("Downloading SignalTrain LA2A dataset (~20GB)...")
-        print("This may take a while depending on your internet connection.")
+def mount_drive_and_setup_paths():
+    """Mount Google Drive and setup dataset paths"""
+    try:
+        drive.mount('/content/drive', force_remount=False)
+        print("✅ Google Drive mounted successfully")
         
-        download_success = False
+        # Create dataset directory in Google Drive if it doesn't exist
+        drive_base_path = '/content/drive/MyDrive/JuceTCN_Datasets'
+        os.makedirs(drive_base_path, exist_ok=True)
         
-        # Try each URL until one works
-        for i, url in enumerate(dataset_urls):
+        return drive_base_path
+    except Exception as e:
+        print(f"⚠️ Google Drive mount failed: {str(e)}")
+        print("📝 Proceeding without persistence - dataset will need to be re-downloaded each session")
+        return None
+
+def check_persistent_dataset(drive_base_path):
+    """Check if dataset exists in Google Drive or locally"""
+    
+    local_path = "SignalTrain_LA2A_Dataset_1.1"
+    
+    if drive_base_path:
+        drive_dataset_path = os.path.join(drive_base_path, "SignalTrain_LA2A_Dataset_1.1")
+        drive_compressed_path = os.path.join(drive_base_path, "SignalTrain_LA2A_Dataset_1.1.tgz")
+        
+        # Priority 1: Check if already available locally
+        if os.path.exists(local_path) and os.path.exists(f"{local_path}/Train"):
+            print("✅ Dataset already available locally from previous session")
+            return local_path, "local"
+        
+        # Priority 2: Check for extracted dataset in Google Drive
+        if os.path.exists(drive_dataset_path) and os.path.exists(f"{drive_dataset_path}/Train"):
+            print("✅ Found extracted dataset in Google Drive")
+            print("🔗 Creating symlink to avoid copying...")
+            
+            # Remove local path if it exists but is incomplete
+            if os.path.exists(local_path):
+                if os.path.islink(local_path):
+                    os.unlink(local_path)
+                else:
+                    shutil.rmtree(local_path)
+            
+            # Create symlink to Google Drive dataset
+            os.symlink(drive_dataset_path, local_path)
+            print("✅ Symlink created - dataset ready for use")
+            return local_path, "drive_symlink"
+        
+        # Priority 3: Check for compressed dataset in Google Drive
+        elif os.path.exists(drive_compressed_path):
+            print("✅ Found compressed dataset in Google Drive")
+            print("📦 Extracting from Google Drive...")
+            
             try:
-                print(f"Attempting download from URL {i+1}/{len(dataset_urls)}...")
+                with tarfile.open(drive_compressed_path, 'r:gz') as tar:
+                    tar.extractall('.')
                 
-                # Use requests with better error handling
-                response = requests.get(url, stream=True)
-                response.raise_for_status()
-                
-                total_size = int(response.headers.get('content-length', 0))
-                
-                with open(dataset_path, 'wb') as f:
-                    downloaded = 0
-                    for chunk in response.iter_content(chunk_size=8192):
-                        if chunk:
-                            f.write(chunk)
-                            downloaded += len(chunk)
-                            if total_size > 0:
-                                percent = (downloaded / total_size) * 100
-                                print(f"\rDownload progress: {percent:.1f}%", end='', flush=True)
-                
-                print("\nDownload complete!")
-                download_success = True
-                break
+                # Move extracted dataset to Google Drive for future use
+                if os.path.exists(local_path):
+                    print("💾 Saving extracted dataset to Google Drive...")
+                    if os.path.exists(drive_dataset_path):
+                        shutil.rmtree(drive_dataset_path)
+                    shutil.copytree(local_path, drive_dataset_path)
+                    
+                    # Create symlink for current session
+                    shutil.rmtree(local_path)
+                    os.symlink(drive_dataset_path, local_path)
+                    
+                print("✅ Dataset extracted and ready for use")
+                return local_path, "drive_compressed"
                 
             except Exception as e:
-                print(f"\nFailed to download from URL {i+1}: {str(e)}")
-                if os.path.exists(dataset_path):
-                    os.remove(dataset_path)
-                continue
-        
-        if not download_success:
-            print("\n❌ All download attempts failed.")
-            print("Please manually download the SignalTrain LA2A dataset from:")
-            print("https://zenodo.org/record/3824876")
-            print("And place the 'SignalTrain_LA2A_Dataset_1.1.zip' file in the current directory.")
-            return None
+                print(f"❌ Failed to extract from Google Drive: {str(e)}")
+                print("🔄 Will download fresh dataset...")
     
-    if os.path.exists(dataset_path):
-        print("Extracting dataset...")
+    # If no persistent version found
+    print("📥 No persistent dataset found - will download from Zenodo")
+    return None, "download_needed"
+
+def download_signaltrain_dataset():
+    """Download and extract SignalTrain LA2A dataset from Zenodo"""
+    
+    # Correct URL for the dataset (it's a .tgz file, not .zip)
+    dataset_url = "https://zenodo.org/records/3824876/files/SignalTrain_LA2A_Dataset_1.1.tgz"
+    dataset_path = "SignalTrain_LA2A_Dataset_1.1.tgz"
+    extract_path = "SignalTrain_LA2A_Dataset_1.1"
+    
+    # Download the dataset if not already present
+    if not os.path.exists(dataset_path):
+        print("📥 Downloading SignalTrain LA2A dataset (~21GB)...")
+        print("⏳ This may take a while depending on your internet connection.")
+        
         try:
-            with zipfile.ZipFile(dataset_path, 'r') as zip_ref:
-                zip_ref.extractall('.')
-            print("Extraction complete!")
+            # Use requests with progress tracking
+            response = requests.get(dataset_url, stream=True)
+            response.raise_for_status()
+            
+            total_size = int(response.headers.get('content-length', 0))
+            
+            with open(dataset_path, 'wb') as f:
+                downloaded = 0
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+                        downloaded += len(chunk)
+                        if total_size > 0:
+                            percent = (downloaded / total_size) * 100
+                            print(f"\r📊 Download progress: {percent:.1f}% ({downloaded/(1024**3):.1f}GB/{total_size/(1024**3):.1f}GB)", end='', flush=True)
+            
+            print("\n✅ Download complete!")
+            
+        except Exception as e:
+            print(f"\n❌ Download failed: {str(e)}")
+            print("\n📋 Manual download instructions:")
+            print("1. Go to: https://zenodo.org/records/3824876")
+            print("2. Download 'SignalTrain_LA2A_Dataset_1.1.tgz' (21GB)")
+            print("3. Place the file in the current directory")
+            print("4. Re-run this cell")
+            
+            # Clean up partial download
+            if os.path.exists(dataset_path):
+                os.remove(dataset_path)
+            
+            raise Exception("Dataset download failed. Please download manually.")
+    
+    # Extract the dataset
+    if os.path.exists(dataset_path):
+        print("📦 Extracting dataset...")
+        try:
+            with tarfile.open(dataset_path, 'r:gz') as tar_ref:
+                tar_ref.extractall('.')
+            print("✅ Extraction complete!")
+            
+            # Verify extraction
+            if os.path.exists(extract_path):
+                # Count files to verify dataset integrity
+                train_files = len([f for f in os.listdir(f"{extract_path}/Train") if f.endswith('.wav')])
+                val_files = len([f for f in os.listdir(f"{extract_path}/Val") if f.endswith('.wav')])
+                
+                print(f"📊 Dataset verification:")
+                print(f"   Training files: {train_files}")
+                print(f"   Validation files: {val_files}")
+                print(f"   Total size: {sum(os.path.getsize(os.path.join(extract_path, subset, f)) for subset in ['Train', 'Val'] for f in os.listdir(os.path.join(extract_path, subset))) / (1024**3):.1f} GB")
+                
+                if train_files > 0 and val_files > 0:
+                    print("✅ Dataset verification successful!")
+                else:
+                    raise Exception("Dataset appears to be incomplete")
+            else:
+                raise Exception("Extraction failed - directory not found")
+                
         except Exception as e:
             print(f"❌ Extraction failed: {str(e)}")
-            return None
+            raise Exception("Dataset extraction failed")
     
     return extract_path
 
-def create_dummy_dataset():
-    """Create a small dummy dataset for testing purposes"""
-    print("Creating dummy dataset for testing...")
+def save_dataset_to_drive(dataset_path, drive_base_path):
+    """Save dataset to Google Drive for future sessions"""
+    if not drive_base_path:
+        print("⚠️ Google Drive not available - skipping persistence")
+        return
     
-    dummy_path = "SignalTrain_LA2A_Dataset_1.1"
-    os.makedirs(f"{dummy_path}/Train", exist_ok=True)
-    os.makedirs(f"{dummy_path}/Val", exist_ok=True)
-    
-    # Create small dummy audio files
-    import numpy as np
-    import soundfile as sf
-    
-    sample_rate = 44100
-    duration = 5  # 5 seconds
-    samples = int(sample_rate * duration)
-    
-    # Create a few dummy files for each subset
-    for subset in ['Train', 'Val']:
-        for i in range(3):  # 3 files per subset
-            for param1 in [1.0, 2.0]:
-                for param2 in [10.0, 50.0]:
-                    # Generate dummy audio
-                    dummy_audio = np.random.randn(samples) * 0.1
-                    
-                    input_file = f"{dummy_path}/{subset}/input_{i:03d}__{param1}__{param2}.wav"
-                    target_file = f"{dummy_path}/{subset}/target_{i:03d}__{param1}__{param2}.wav"
-                    
-                    # Add some simple processing to make target different from input
-                    target_audio = dummy_audio * 0.8  # Simple gain reduction
-                    
-                    sf.write(input_file, dummy_audio, sample_rate)
-                    sf.write(target_file, target_audio, sample_rate)
-    
-    print(f"Dummy dataset created at: {dummy_path}")
-    return dummy_path
+    try:
+        drive_dataset_path = os.path.join(drive_base_path, "SignalTrain_LA2A_Dataset_1.1")
+        drive_compressed_path = os.path.join(drive_base_path, "SignalTrain_LA2A_Dataset_1.1.tgz")
+        
+        print("💾 Saving dataset to Google Drive for future sessions...")
+        print("🔄 This will take a few minutes but will save hours in future sessions...")
+        
+        # Save both extracted and compressed versions
+        # Extracted version for faster access, compressed as backup
+        
+        # Copy extracted dataset
+        if os.path.exists(drive_dataset_path):
+            print("🗑️ Removing old dataset from Google Drive...")
+            shutil.rmtree(drive_dataset_path)
+        
+        print("📁 Copying extracted dataset to Google Drive...")
+        shutil.copytree(dataset_path, drive_dataset_path)
+        
+        # Create compressed backup
+        if not os.path.exists(drive_compressed_path):
+            print("🗜️ Creating compressed backup in Google Drive...")
+            with tarfile.open(drive_compressed_path, 'w:gz') as tar:
+                tar.add(dataset_path, arcname=os.path.basename(dataset_path))
+        
+        # Replace local dataset with symlink to save local storage
+        print("🔗 Replacing local dataset with symlink to Google Drive...")
+        shutil.rmtree(dataset_path)
+        os.symlink(drive_dataset_path, dataset_path)
+        
+        print("✅ Dataset successfully saved to Google Drive!")
+        print("🚀 Future Colab sessions will load instantly from Google Drive!")
+        
+    except Exception as e:
+        print(f"⚠️ Failed to save to Google Drive: {str(e)}")
+        print("📝 Dataset will still work for this session, but may need re-download next time")
 
-# Try to download the real dataset, fallback to dummy if needed
-print("Setting up SignalTrain LA2A dataset...")
-dataset_root = download_signaltrain_dataset()
+def setup_persistent_signaltrain_dataset():
+    """Main function to setup SignalTrain dataset with Google Drive persistence"""
+    
+    print("🎵 Setting up SignalTrain LA2A dataset with Google Drive persistence...")
+    print("📄 Dataset info: https://zenodo.org/records/3824876")
+    print("📝 Citation: Colburn, B., & Hawley, S. (2020). SignalTrain LA2A Dataset (1.1)")
+    print("=" * 80)
+    
+    # Step 1: Mount Google Drive
+    drive_base_path = mount_drive_and_setup_paths()
+    
+    # Step 2: Check for existing dataset
+    dataset_path, source = check_persistent_dataset(drive_base_path)
+    
+    # Step 3: Download if needed
+    if source == "download_needed":
+        try:
+            dataset_path = download_signaltrain_dataset()
+            
+            # Save to Google Drive for future sessions
+            if drive_base_path:
+                save_dataset_to_drive(dataset_path, drive_base_path)
+            
+        except Exception as e:
+            print(f"\n❌ Dataset setup failed: {str(e)}")
+            print("\n🔧 Troubleshooting:")
+            print("1. Ensure you have ~21GB of free disk space")
+            print("2. Check your internet connection")
+            print("3. Try downloading manually from: https://zenodo.org/records/3824876")
+            print("4. Ensure the file 'SignalTrain_LA2A_Dataset_1.1.tgz' is in the current directory")
+            
+            # Stop execution if dataset setup fails
+            raise Exception("Cannot proceed without dataset")
+    
+    return dataset_path
 
-if dataset_root is None:
-    print("\n⚠️  Using dummy dataset for testing. Replace with real dataset for actual training.")
-    dataset_root = create_dummy_dataset()
+def verify_dataset_structure(dataset_path):
+    """Verify that the dataset has the expected structure for micro-tcn"""
+    
+    required_dirs = ['Train', 'Val']
+    
+    for dir_name in required_dirs:
+        dir_path = os.path.join(dataset_path, dir_name)
+        if not os.path.exists(dir_path):
+            raise Exception(f"Missing required directory: {dir_path}")
+        
+        # Check for input/target file pairs
+        files = os.listdir(dir_path)
+        input_files = [f for f in files if f.startswith('input_') and f.endswith('.wav')]
+        target_files = [f for f in files if f.startswith('target_') and f.endswith('.wav')]
+        
+        if len(input_files) == 0 or len(target_files) == 0:
+            raise Exception(f"No input/target files found in {dir_path}")
+        
+        print(f"✅ {dir_name}: {len(input_files)} input files, {len(target_files)} target files")
+    
+    return True
 
-print(f"Dataset root: {dataset_root}")
+# Setup the SignalTrain LA2A dataset with Google Drive persistence
+try:
+    dataset_root = setup_persistent_signaltrain_dataset()
+    verify_dataset_structure(dataset_root)
+    print(f"🎯 Dataset ready at: {dataset_root}")
+    
+except Exception as e:
+    print(f"\n❌ Dataset setup failed: {str(e)}")
+    print("\n🔧 Troubleshooting:")
+    print("1. Ensure you have ~21GB of free disk space")
+    print("2. Check your internet connection")
+    print("3. Try downloading manually from: https://zenodo.org/records/3824876")
+    print("4. Ensure the file 'SignalTrain_LA2A_Dataset_1.1.tgz' is in the current directory")
+    
+    # Stop execution if dataset setup fails
+    raise Exception("Cannot proceed without dataset")
 ```
 
 ## Global Configuration (Replaces Command Line Arguments)
@@ -401,10 +563,10 @@ for idx, tconf in enumerate(train_configs):
     args.default_root_dir = os.path.join("lightning_logs", "bulk", specifier)
     print(f"Training directory: {args.default_root_dir}")
     
-    # Create PyTorch Lightning trainer with modern compatibility
+    # Create PyTorch Lightning trainer with v1.9.5 compatibility
     trainer = pl.Trainer(
         max_epochs=args.max_epochs,
-        precision='16-mixed' if args.precision == 16 and torch.cuda.is_available() else 32,
+        precision=16 if args.precision == 16 and torch.cuda.is_available() else 32,
         accelerator='gpu' if torch.cuda.is_available() else 'cpu',
         devices=1,
         default_root_dir=args.default_root_dir,
