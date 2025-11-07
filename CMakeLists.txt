@@ -11,7 +11,7 @@ add_subdirectory("../../../JUCE" ./JUCE)
 find_package(Torch REQUIRED)
 
 juce_add_plugin(${PLUGIN_NAME}
-    COMPANY_NAME "John Wise"
+    COMPANY_NAME "JohnWise"
     IS_SYNTH FALSE
     NEEDS_MIDI_INPUT FALSE
     IS_MIDI_EFFECT FALSE

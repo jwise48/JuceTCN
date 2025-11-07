@@ -63,7 +63,7 @@ JuceTCNAudioProcessorEditor::JuceTCNAudioProcessorEditor (JuceTCNAudioProcessor&
     outputGainSlider.setValue (juce::Decibels::gainToDecibels(audioProcessor.outputGainLn));
     outputGainSlider.setColour (juce::Slider::textBoxBackgroundColourId, fillColour);
     outputGainSlider.setColour (juce::Slider::textBoxOutlineColourId, fillColour);
-    outputGainLabel.setText ("Makeup", juce::dontSendNotification);
+    outputGainLabel.setText ("Output", juce::dontSendNotification);
     outputGainLabel.attachToComponent (&outputGainSlider, true);
 
     limitSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 30, 24);
@@ -102,7 +102,7 @@ JuceTCNAudioProcessorEditor::JuceTCNAudioProcessorEditor (JuceTCNAudioProcessor&
     receptiveFieldTextEditor.setColour (juce::TextEditor::highlightColourId, juce::Colours::darkgrey);
     receptiveFieldTextEditor.setReadOnly(true);
     receptiveFieldTextEditor.setFont(juce::Font (15.0f));
-    receptiveFieldTextEditor.setText("0", false);
+    receptiveFieldTextEditor.setText("0", false);  // ToDo: Add actual visualization of receptive field
     receptiveFieldLabel.setText ("receptive field", juce::dontSendNotification);
     receptiveFieldLabel.attachToComponent (&receptiveFieldTextEditor, true);
     addAndMakeVisible(receptiveFieldTextEditor);
