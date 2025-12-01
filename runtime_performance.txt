@@ -1,0 +1,248 @@
+uTCN-100-C
+
+========== PROCESS BLOCK DEBUG (call #800) ==========
+numSamples: 512
+receptiveFieldSamples: 4490
+membuflength: 4489
+procbuflength: 5001
+Copied membuf[0:4489] -> procbuf[0:4489]
+Copied buffer[0:512] -> procbuf[4489:5001]
+procbuf first 5 samples: -0.0713704 -0.0464673 -0.0221512 0.00146866 0.0240748 
+
+--- STEP 2: Update membuf ---
+Copying procbuf[512:5001] -> membuf[0:4489]
+membuf first 5 samples: 0.197787 0.186816 0.170165 0.149692 0.127074 
+
+--- STEP 3: Convert to tensor ---
+Tensor sizes vector: [5001]
+Total elements: 5001
+procbufptr address: 0x7fa988929010
+procbufptr first 5 values: -0.0713704 -0.0464673 -0.0221512 0.00146866 0.0240748 
+Tensor created from blob
+Tensor shape: [5001]
+Tensor dtype: float
+Tensor device: cpu
+Tensor is_contiguous: 1
+Tensor first 5 elements: -0.0713704 -0.0464673 -0.0221512 0.00146866 0.0240748 
+
+
+
+
+
+uTCN-1000-C
+Model loaded and set to evaluation mode
+==== calculateReceptiveField ====
+rf 44490
+membuflength 44489
+procbuflength 45001
+
+========== PROCESS BLOCK DEBUG (call #700) ==========
+numSamples: 512
+receptiveFieldSamples: 44490
+membuflength: 44489
+procbuflength: 45001
+Copied membuf[0:44489] -> procbuf[0:44489]
+Copied buffer[0:512] -> procbuf[44489:45001]
+procbuf first 5 samples: 0.000777245 -0.007267 -0.0120872 -0.0148649 -0.0167527 
+
+--- STEP 2: Update membuf ---
+Copying procbuf[512:45001] -> membuf[0:44489]
+membuf first 5 samples: 0.0763712 0.0611323 0.0430195 0.0227611 0.00108576 
+
+--- STEP 3: Convert to tensor ---
+Tensor sizes vector: [45001]
+Total elements: 45001
+procbufptr address: 0x7f82e5d00010
+procbufptr first 5 values: 0.000777245 -0.007267 -0.0120872 -0.0148649 -0.0167527 
+Tensor created from blob
+Tensor shape: [45001]
+Tensor dtype: float
+Tensor device: cpu
+Tensor is_contiguous: 1
+Tensor first 5 elements: 0.000777245 -0.007267 -0.0120872 -0.0148649 -0.0167527 
+
+uTCN-3-5-C
+Performance count for "Setup" over 500 run(s)
+Average = 2 microsecs, minimum = 1 microsecs, maximum = 3 microsecs, total = 905 microsecs
+Performance count for "BufferMgmt" over 500 run(s)
+Average = 1 microsecs, minimum = 1 microsecs, maximum = 3 microsecs, total = 701 microsecs
+Performance count for "TensorOps" over 500 run(s)
+Average = 100 microsecs, minimum = 39 microsecs, maximum = 172 microsecs, total = 50 millisecs
+Performance count for "ModelInference" over 500 run(s)
+Average = 1929 microsecs, minimum = 1276 microsecs, maximum = 2476 microsecs, total = 964 millisecs
+Performance count for "OutputProc" over 500 run(s)
+Average = 19 microsecs, minimum = 13 microsecs, maximum = 34 microsecs, total = 9289 microsecs
+Performance count for "TotalProcessBlock" over 500 run(s)
+Average = 2053 microsecs, minimum = 1330 microsecs, maximum = 2980 microsecs, total = 1027 millisecs
+
+uTCN-3-13-C
+Performance count for "Setup" over 500 run(s)
+Average = 2 microsecs, minimum = 0 microsecs, maximum = 3 microsecs, total = 1002 microsecs
+Performance count for "BufferMgmt" over 500 run(s)
+Average = 2 microsecs, minimum = 1 microsecs, maximum = 6 microsecs, total = 1098 microsecs
+Performance count for "TensorOps" over 500 run(s)
+Average = 112 microsecs, minimum = 30 microsecs, maximum = 157 microsecs, total = 56 millisecs
+Performance count for "ModelInference" over 500 run(s)
+Average = 3016 microsecs, minimum = 1473 microsecs, maximum = 3450 microsecs, total = 1508 millisecs
+Performance count for "OutputProc" over 500 run(s)
+Average = 17 microsecs, minimum = 9 microsecs, maximum = 24 microsecs, total = 8563 microsecs
+Performance count for "TotalProcessBlock" over 500 run(s)
+Average = 3153 microsecs, minimum = 1521 microsecs, maximum = 4310 microsecs, total = 1576 millisecs
+
+
+uTCN-3-17-C
+Performance count for "Setup" over 500 run(s)
+Average = 2 microsecs, minimum = 1 microsecs, maximum = 21 microsecs, total = 1090 microsecs
+Performance count for "BufferMgmt" over 500 run(s)
+Average = 2 microsecs, minimum = 1 microsecs, maximum = 4 microsecs, total = 1231 microsecs
+Performance count for "TensorOps" over 500 run(s)
+Average = 106 microsecs, minimum = 36 microsecs, maximum = 151 microsecs, total = 53 millisecs
+Performance count for "ModelInference" over 500 run(s)
+Average = 3473 microsecs, minimum = 1837 microsecs, maximum = 4242 microsecs, total = 1736 millisecs
+Performance count for "OutputProc" over 500 run(s)
+Average = 17 microsecs, minimum = 9 microsecs, maximum = 35 microsecs, total = 8624 microsecs
+Performance count for "TotalProcessBlock" over 500 run(s)
+Average = 3604 microsecs, minimum = 1885 microsecs, maximum = 4550 microsecs, total = 1802 millisecs
+
+uTCN-3-21-C
+Performance count for "Setup" over 500 run(s)
+Average = 2 microsecs, minimum = 1 microsecs, maximum = 3 microsecs, total = 845 microsecs
+Performance count for "BufferMgmt" over 500 run(s)
+Average = 2 microsecs, minimum = 1 microsecs, maximum = 5 microsecs, total = 1232 microsecs
+Performance count for "TensorOps" over 500 run(s)
+Average = 87 microsecs, minimum = 42 microsecs, maximum = 153 microsecs, total = 43 millisecs
+Performance count for "ModelInference" over 500 run(s)
+Average = 3600 microsecs, minimum = 2170 microsecs, maximum = 4912 microsecs, total = 1800 millisecs
+Performance count for "OutputProc" over 500 run(s)
+Average = 18 microsecs, minimum = 10 microsecs, maximum = 46 microsecs, total = 8846 microsecs
+Performance count for "TotalProcessBlock" over 500 run(s)
+Average = 3710 microsecs, minimum = 2226 microsecs, maximum = 5080 microsecs, total = 1855 millisecs
+
+uTCN-3-25-C
+Performance count for "Setup" over 500 run(s)
+Average = 2 microsecs, minimum = 0 microsecs, maximum = 3 microsecs, total = 855 microsecs
+Performance count for "BufferMgmt" over 500 run(s)
+Average = 3 microsecs, minimum = 1 microsecs, maximum = 8 microsecs, total = 1502 microsecs
+Performance count for "TensorOps" over 500 run(s)
+Average = 92 microsecs, minimum = 26 microsecs, maximum = 157 microsecs, total = 46 millisecs
+Performance count for "ModelInference" over 500 run(s)
+Average = 4531 microsecs, minimum = 2507 microsecs, maximum = 5778 microsecs, total = 2266 millisecs
+Performance count for "OutputProc" over 500 run(s)
+Average = 17 microsecs, minimum = 8 microsecs, maximum = 26 microsecs, total = 8674 microsecs
+Performance count for "TotalProcessBlock" over 500 run(s)
+Average = 4649 microsecs, minimum = 2585 microsecs, maximum = 6518 microsecs, total = 2325 millisecs
+
+uTCN-3-33-C
+Performance count for "Setup" over 500 run(s)
+Average = 2 microsecs, minimum = 1 microsecs, maximum = 3 microsecs, total = 798 microsecs
+Performance count for "BufferMgmt" over 500 run(s)
+Average = 3 microsecs, minimum = 2 microsecs, maximum = 7 microsecs, total = 1650 microsecs
+Performance count for "TensorOps" over 500 run(s)
+Average = 84 microsecs, minimum = 38 microsecs, maximum = 149 microsecs, total = 42 millisecs
+Performance count for "ModelInference" over 500 run(s)
+Average = 6030 microsecs, minimum = 4657 microsecs, maximum = 7582 microsecs, total = 3015 millisecs
+Performance count for "OutputProc" over 500 run(s)
+Average = 17 microsecs, minimum = 12 microsecs, maximum = 37 microsecs, total = 8266 microsecs
+Performance count for "TotalProcessBlock" over 500 run(s)
+Average = 6137 microsecs, minimum = 4711 microsecs, maximum = 7742 microsecs, total = 3069 millisecs
+
+
+uTCN-3-37-C
+Performance count for "Setup" over 500 run(s)
+Average = 2 microsecs, minimum = 1 microsecs, maximum = 20 microsecs, total = 783 microsecs
+Performance count for "BufferMgmt" over 500 run(s)
+Average = 4 microsecs, minimum = 2 microsecs, maximum = 7 microsecs, total = 1980 microsecs
+Performance count for "TensorOps" over 500 run(s)
+Average = 81 microsecs, minimum = 27 microsecs, maximum = 152 microsecs, total = 41 millisecs
+Performance count for "ModelInference" over 500 run(s)
+Average = 6753 microsecs, minimum = 4401 microsecs, maximum = 8438 microsecs, total = 3376 millisecs
+Performance count for "OutputProc" over 500 run(s)
+Average = 15 microsecs, minimum = 9 microsecs, maximum = 22 microsecs, total = 7654 microsecs
+Performance count for "TotalProcessBlock" over 500 run(s)
+Average = 6857 microsecs, minimum = 4448 microsecs, maximum = 8567 microsecs, total = 3428 millisecs
+
+uTCN-100-C
+Performance count for "Setup" over 500 run(s)
+Average = 2 microsecs, minimum = 1 microsecs, maximum = 3 microsecs, total = 932 microsecs
+Performance count for "BufferMgmt" over 500 run(s)
+Average = 4 microsecs, minimum = 3 microsecs, maximum = 7 microsecs, total = 2126 microsecs
+Performance count for "TensorOps" over 500 run(s)
+Average = 90 microsecs, minimum = 38 microsecs, maximum = 154 microsecs, total = 45 millisecs
+Performance count for "ModelInference" over 500 run(s)
+Average = 6372 microsecs, minimum = 4844 microsecs, maximum = 8743 microsecs, total = 3186 millisecs
+Performance count for "OutputProc" over 500 run(s)
+Average = 23 microsecs, minimum = 20 microsecs, maximum = 36 microsecs, total = 11 millisecs
+Performance count for "TotalProcessBlock" over 500 run(s)
+Average = 6494 microsecs, minimum = 4914 microsecs, maximum = 8913 microsecs, total = 3247 millisecs
+
+uTCN-107-C
+Performance count for "Setup" over 500 run(s)
+Average = 2 microsecs, minimum = 1 microsecs, maximum = 3 microsecs, total = 806 microsecs
+Performance count for "BufferMgmt" over 500 run(s)
+Average = 6 microsecs, minimum = 2 microsecs, maximum = 11 microsecs, total = 2810 microsecs
+Performance count for "TensorOps" over 500 run(s)
+Average = 86 microsecs, minimum = 28 microsecs, maximum = 148 microsecs, total = 43 millisecs
+Performance count for "ModelInference" over 500 run(s)
+Average = 5917 microsecs, minimum = 3549 microsecs, maximum = 7401 microsecs, total = 2958 millisecs
+Performance count for "OutputProc" over 500 run(s)
+Average = 15 microsecs, minimum = 9 microsecs, maximum = 23 microsecs, total = 7708 microsecs
+Performance count for "TotalProcessBlock" over 500 run(s)
+Average = 6028 microsecs, minimum = 3590 microsecs, maximum = 7516 microsecs, total = 3014 millisecs
+
+uTCN-109-C
+Performance count for "Setup" over 500 run(s)
+Average = 1 microsecs, minimum = 1 microsecs, maximum = 29 microsecs, total = 684 microsecs
+Performance count for "BufferMgmt" over 500 run(s)
+Average = 6 microsecs, minimum = 5 microsecs, maximum = 23 microsecs, total = 3085 microsecs
+Performance count for "TensorOps" over 500 run(s)
+Average = 62 microsecs, minimum = 34 microsecs, maximum = 132 microsecs, total = 31 millisecs
+Performance count for "ModelInference" over 500 run(s)
+Average = 9456 microsecs, minimum = 8396 microsecs, maximum = 12 millisecs, total = 4728 millisecs
+Performance count for "OutputProc" over 500 run(s)
+Average = 17 microsecs, minimum = 14 microsecs, maximum = 30 microsecs, total = 8720 microsecs
+Performance count for "TotalProcessBlock" over 500 run(s)
+Average = 9546 microsecs, minimum = 8452 microsecs, maximum = 13 millisecs, total = 4773 millisecs
+
+
+uTCN-111-C
+Performance count for "Setup" over 500 run(s)
+Average = 1 microsecs, minimum = 0 microsecs, maximum = 14 microsecs, total = 508 microsecs
+Performance count for "BufferMgmt" over 500 run(s)
+Average = 7 microsecs, minimum = 5 microsecs, maximum = 29 microsecs, total = 3454 microsecs
+Performance count for "TensorOps" over 500 run(s)
+Average = 41 microsecs, minimum = 28 microsecs, maximum = 137 microsecs, total = 20 millisecs
+Performance count for "ModelInference" over 500 run(s)
+Average = 11 millisecs, minimum = 8915 microsecs, maximum = 16 millisecs, total = 5527 millisecs
+Performance count for "OutputProc" over 500 run(s)
+Average = 15 microsecs, minimum = 11 microsecs, maximum = 39 microsecs, total = 7686 microsecs
+Performance count for "TotalProcessBlock" over 500 run(s)
+Average = 11 millisecs, minimum = 8961 microsecs, maximum = 16 millisecs, total = 5560 millisecs
+
+uTCN-300-C
+Performance count for "Setup" over 500 run(s)
+Average = 1 microsecs, minimum = 1 microsecs, maximum = 19 microsecs, total = 739 microsecs
+Performance count for "BufferMgmt" over 500 run(s)
+Average = 11 microsecs, minimum = 7 microsecs, maximum = 24 microsecs, total = 5275 microsecs
+Performance count for "TensorOps" over 500 run(s)
+Average = 67 microsecs, minimum = 39 microsecs, maximum = 158 microsecs, total = 33 millisecs
+Performance count for "ModelInference" over 500 run(s)
+Average = 17 millisecs, minimum = 15 millisecs, maximum = 20 millisecs, total = 8326 millisecs
+Performance count for "OutputProc" over 500 run(s)
+Average = 23 microsecs, minimum = 21 microsecs, maximum = 36 microsecs, total = 11 millisecs
+Performance count for "TotalProcessBlock" over 500 run(s)
+Average = 17 millisecs, minimum = 15 millisecs, maximum = 20 millisecs, total = 8380 millisecs
+
+uTCN-1000-C
+Performance count for "Setup" over 500 run(s)
+Average = 2 microsecs, minimum = 1 microsecs, maximum = 36 microsecs, total = 794 microsecs
+Performance count for "BufferMgmt" over 500 run(s)
+Average = 35 microsecs, minimum = 19 microsecs, maximum = 80 microsecs, total = 18 millisecs
+Performance count for "TensorOps" over 500 run(s)
+Average = 94 microsecs, minimum = 45 microsecs, maximum = 5645 microsecs, total = 47 millisecs
+Performance count for "ModelInference" over 500 run(s)
+Average = 52 millisecs, minimum = 46 millisecs, maximum = 327 millisecs, total = 26109 millisecs
+Performance count for "OutputProc" over 500 run(s)
+Average = 21 microsecs, minimum = 17 microsecs, maximum = 61 microsecs, total = 10 millisecs
+Performance count for "TotalProcessBlock" over 500 run(s)
+Average = 52 millisecs, minimum = 46 millisecs, maximum = 332 millisecs, total = 26186 millisecs
+

@@ -6,7 +6,7 @@ set(PLUGIN_ID "TCN1")
 set(CMAKE_PREFIX_PATH "/Users/wisjhn/src_resources/libtorch")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
-project(${PLUGIN_NAME} VERSION 0.0.1)
+project(${PLUGIN_NAME} VERSION 0.0.2)
 add_subdirectory("../../../JUCE" ./JUCE)
 find_package(Torch REQUIRED)
 

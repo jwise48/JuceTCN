@@ -15,6 +15,7 @@
 #include <juce_core/juce_core.h>
 #include <torch/script.h>
 #include <torch/torch.h>
+#include "ModelConfig.h"
 
 //==============================================================================
 /**
@@ -60,7 +61,6 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
     //==============================================================================
-    void calculateReceptiveField();
     void setupBuffers();
 
     //==============================================================================
@@ -77,6 +77,10 @@ public:
     // holder for the linear gain values
     // (don't want to convert dB -> linear on audio thread)
     float inputGainLn, outputGainLn;
+
+    std::vector<ModelConfig> modelConfigs;
+    // 3 variant batch: 2, 3, 4, 5, 6
+    int currentModelIndex = 12;  // tracks which model is currently loaded
 
 private:
     //==============================================================================
@@ -99,6 +103,16 @@ private:
     int procbuflength; // number of samples in the process buffer (rf + block - 1)
 
     std::vector<juce::IIRFilter> highPassFilters; // high pass filters for the left and right channels
-
+    
     torch::jit::script::Module model;
+
+    // Performance counters for profiling
+    juce::PerformanceCounter setupCounter;
+    juce::PerformanceCounter bufferManagementCounter;
+    juce::PerformanceCounter tensorOpsCounter;
+    juce::PerformanceCounter modelInferenceCounter;
+    juce::PerformanceCounter outputProcessingCounter;
+    juce::PerformanceCounter totalProcessBlockCounter;
+    
+    int debugCounter = 0;  // For periodic statistics printing
 };

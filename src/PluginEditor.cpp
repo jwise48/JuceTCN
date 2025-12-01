@@ -102,7 +102,7 @@ JuceTCNAudioProcessorEditor::JuceTCNAudioProcessorEditor (JuceTCNAudioProcessor&
     receptiveFieldTextEditor.setColour (juce::TextEditor::highlightColourId, juce::Colours::darkgrey);
     receptiveFieldTextEditor.setReadOnly(true);
     receptiveFieldTextEditor.setFont(juce::Font (15.0f));
-    receptiveFieldTextEditor.setText("0", false);  // ToDo: Add actual visualization of receptive field
+    receptiveFieldTextEditor.setText(std::to_string(audioProcessor.receptiveFieldSamples), false);  // ToDo: Add actual visualization of receptive field
     receptiveFieldLabel.setText ("receptive field", juce::dontSendNotification);
     receptiveFieldLabel.attachToComponent (&receptiveFieldTextEditor, true);
     addAndMakeVisible(receptiveFieldTextEditor);
@@ -190,7 +190,7 @@ void JuceTCNAudioProcessorEditor::updateGains(bool inputGain)
 //==============================================================================
 void JuceTCNAudioProcessorEditor::updateModelState()
 {
-  audioProcessor.calculateReceptiveField();
+  audioProcessor.modelConfigs[audioProcessor.currentModelIndex].calculateReceptiveField();
   float rfms = static_cast<float>(audioProcessor.receptiveFieldSamples) / static_cast<float>(audioProcessor.sampleRate) * 1000.0f;
   receptiveFieldTextEditor.setText(juce::String(rfms, 1));
   //int parameters = audioProcessor.model->getNumParameters();
@@ -217,7 +217,7 @@ void JuceTCNAudioProcessorEditor::paint (juce::Graphics& g)
       g.setFont (juce::Font ("Source Sans Variable", 32.0f, juce::Font::plain).withTypefaceStyle ("Light")); //.withExtraKerningFactor (0.147f));
       g.drawText ("ncomp", 350, 0, 300, 70, juce::Justification::centred, true);
       g.setFont (juce::Font ("Source Sans Variable", 10.0f, juce::Font::plain).withTypefaceStyle ("Light")); //.withExtraKerningFactor (0.147f));
-      g.drawText ("neural compressor", 350, 0, 300, 105, juce::Justification::centred, true);
+      g.drawText (audioProcessor.modelConfigs[audioProcessor.currentModelIndex].name, 350, 0, 300, 105, juce::Justification::centred, true);
       g.drawText ("TCN", 350, 0, 300, 125, juce::Justification::centred, true);
     }
 }
